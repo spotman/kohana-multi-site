@@ -10,10 +10,10 @@ Module provides one directory for each site (it works exact like additional "app
 Installation
 ------------
 
+
 1.  Create directory *sites* near your *application* directory (or in another place, which you can set in config/sites.php)
 2.  Create subdirectories for your sites (one site => one directory)
-3.  Place directories and files
-4.  Enjoy :)
+3.  Put site-related directories and files (like config/classes/views)
 
 Example directory structure:
 
@@ -31,3 +31,13 @@ Example directory structure:
             /i18n
             /views
     /system
+
+Also you need to create file */application/classes/Kohana.php* with following content:
+
+```php
+<?php defined('SYSPATH') OR die('No direct script access.');
+
+class Kohana extends MultiSite_Kohana {}
+```
+
+See file *classes/MultiSite/Kohana.php* for more info.
