@@ -21,9 +21,11 @@ abstract class Core_MultiSite {
         $site = static::search($domain);
 
         if ( ! $site )
-            throw new HTTP_Exception_500('Domain [:domain] does not defined in config/sites.php',
-                array(':domain' => $domain)
-            );
+	    return;
+
+//            throw new HTTP_Exception_500('Domain [:domain] does not defined in config/sites.php',
+//                array(':domain' => $domain)
+//            );
 
         $site_directory = static::config('path') . DIRECTORY_SEPARATOR . $site['path'];
 
