@@ -20,8 +20,9 @@ abstract class Core_MultiSite {
         // Getting config for current domain
         $site = static::search($domain);
 
+        // If no config for current site, exit
         if ( ! $site )
-	    return;
+            return;
 
 //            throw new HTTP_Exception_500('Domain [:domain] does not defined in config/sites.php',
 //                array(':domain' => $domain)
