@@ -17,17 +17,17 @@ Installation
 
 Example directory structure:
 
-/application
-/modules
-/sites
-    /example.com
-        /classes
-        /config
-        /i18n
-        /views
-    /homepage.info
-        /classes
-        /config
-        /i18n
-        /views
-/system
+    /application
+    /modules
+    /sites
+        /example.com
+            /classes
+            /config
+            /i18n
+            /views
+        /homepage.info
+            /classes
+            /config
+            /i18n
+            /views
+    /system
