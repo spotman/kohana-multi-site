@@ -37,7 +37,15 @@ Also you need to create file */application/classes/Kohana.php* with following co
 ```php
 <?php defined('SYSPATH') OR die('No direct script access.');
 
-class Kohana extends MultiSite_Kohana {}
+class Kohana extends Kohana_Core {
+
+    public static function prepend_path($path)
+    {
+        $path = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+        array_unshift(static::$_paths, $path);
+    }
+
+}
 ```
 
-See file *classes/MultiSite/Kohana.php* for more info.
+because of Kohana initializing logic.
