@@ -2,9 +2,14 @@
 
 return array(
 
-    'example.com'     =>  array(
+    'path'  =>  realpath(APPPATH.'..'.DIRECTORY_SEPARATOR.'sites'),
 
-        'path'      =>  'example'
+    'sites' =>  array(
+
+        'example.com'   =>  array(
+            'urls'      =>  array('example.com', '*.example.com')
+        ),
 
     ),
+
 );

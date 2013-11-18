@@ -1,3 +1,3 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
-MultiSite::init();
+class MultiSite extends Core_MultiSite {}
