@@ -1,11 +1,16 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
-abstract class Core_MultiSite {
+abstract class Kohana_MultiSite {
 
     /**
      * @var string
      */
     protected static $_domain;
+
+    /**
+     * @var string Per-site directory
+     */
+    protected static $_site_dir;
 
     /**
      * @var Kohana_Config_Group
@@ -36,11 +41,37 @@ abstract class Core_MultiSite {
                 array(':domain' => $domain, ':directory' => $site_directory)
             );
 
-        // Connecting per-site directory
+        // Saving per-site dir for later use
+        static::site_directory($site_directory);
+
+        // Connecting per-site directory to CFS so it becomes top level path (which overrides /application/ path)
         Kohana::prepend_path($site_directory);
+
+        // Loading custom init.php file for current site if exists
+        $init_file = $site_directory.DIRECTORY_SEPARATOR.'init.php';
+
+        if ( file_exists($init_file) )
+        {
+            Kohana::load($init_file);
+        }
     }
 
-    protected static function domain()
+    /**
+     * Getter/setter for current per-site directory
+     * @param string|null $path
+     * @return string
+     */
+    public static function site_directory($path = NULL)
+    {
+        if ( $path )
+        {
+            static::$_site_dir = $path;
+        }
+
+        return static::$_site_dir;
+    }
+
+    public static function domain()
     {
         if ( ! static::$_domain )
         {
@@ -67,6 +98,22 @@ abstract class Core_MultiSite {
 
         foreach ( $sites as $key => $config )
         {
+            // Allow short listing of sites (like 'sites' => array('example.com', 'another-example.com') )
+            if ( is_string($config) )
+            {
+                $key = $config;
+                $config = NULL;
+            }
+
+            // Allow empty per-site config
+            if ( ! $config )
+            {
+                $config = array(
+                    'urls' => array($key)
+                );
+            }
+
+            // Search for matching domain
             foreach ( $config['urls'] as $url )
             {
                 if ( static::check($domain, $url) )
