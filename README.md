@@ -20,11 +20,11 @@ Place this module at the first position in list of Kohana modules
 return array(
 
     // Place it first for correct initialization of per-site classes and configs
-    'multi-site'            => MODPATH.'multi-site',            // Multiple apps on top of single engine
+    'multi-site'    => MODPATH.'multi-site',    // Multiple apps on top of single engine
 
-    'api'                   => MODPATH.'api',                   // API subsystem
-    'auth'                  => MODPATH.'auth',                  // Basic authentication
-    'cache'                 => MODPATH.'cache',                 // Caching with multiple backends
+    'api'           => MODPATH.'api',           // API subsystem
+    'auth'          => MODPATH.'auth',          // Basic authentication
+    'cache'         => MODPATH.'cache',         // Caching with multiple backends
     
     ...
 
