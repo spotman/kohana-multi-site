@@ -46,16 +46,21 @@ return array(
 
         // One concrete domain site mapped to directory called "example.com"
         'example.com'   =>  array(),
+
+        // One concrete domain site with aliases mapped to directory called "another-site"
+        'example.com'   =>  array(
+            'urls'  =>  array('example.com', 'example.info', 'example.org')
+        ),
         
         // One concrete domain site mapped to directory called "another-site"
         'another-example.com'   =>  array(
             'path'  =>  'another-example'
         ),
-        
-        // All domains matching wildcard "*.example.com" mapped to directory called "*.example.com"
+
+        // All sub-domains matching wildcard "*.example.com" mapped to directory called "*.example.com"
         '*.example.com' =>  array(),
 
-        // All domains matching wildcard "*.another-example.com" mapped to directory called "another-site-subs"
+        // All sub-domains matching wildcard "*.another-example.com" mapped to directory called "another-site-subs"
         '*.another-example.com' =>  array(
             'path'  =>  'another-site-subs'
         ),
@@ -75,9 +80,10 @@ or this
 
 return array(
 
-    // This way you`ll have 3 concrete sites and 3 per-site directories named like a domain
-    // But no wildcards and custom per-site directory name
-    'sites' =>  array('example.com', 'dev.example.com', 'another-example.com')
+    // This way you`ll have 2 concrete domain sites, 1 wildcard domain site
+    // And 3 per-site directories named like a domain / wildcard
+    // But no custom per-site directory name
+    'sites' =>  array('example.com', '*.example.com', 'another-example.com')
 );
 ```
 
