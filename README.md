@@ -1,7 +1,7 @@
 kohana-multi-site
 =================
 
-Simple module for Kohana framework for handling multiple sites upon one Kohana instance.
+Simple module for Kohana framework v3.3 for handling multiple sites upon one Kohana instance.
 The module provides one directory for each site (it works exact like additional "application" directory in Kohana CFS).
 
 
