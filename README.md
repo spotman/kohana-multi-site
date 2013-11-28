@@ -102,6 +102,18 @@ class Kohana extends Kohana_Core {
         $path = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
         array_unshift(static::$_paths, $path);
     }
+    
+    public static function modules(array $modules = NULL)
+    {
+        $result = parent::modules($modules);
+
+        if ( $modules !== NULL )
+        {
+            MultiSite::instance()->init_site();
+        }
+
+        return $result;
+    }
 
 }
 ```
