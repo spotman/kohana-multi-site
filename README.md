@@ -30,66 +30,42 @@ return array(
 By doing this you`ll allow Kohana initialize other modules with classes and conigs from per-site directory 
 
 ### Step 2
-Create directory `sites` near your `application` directory (or in another place, which you can set in `config/sites.php`)
+Create base directory `sites` near your `application` directory (or in another place, which you can set in `config/sites.php`)
 
 ### Step 3
-Copy `config/sites.php` to `/application/config` and change it to something like this
-
-```php
-<?php defined('SYSPATH') OR die('No direct script access.');
-
-return array(
-
-    'sites' =>  array(
-
-        // One concrete domain site mapped to directory called "example.com"
-        'example.com'   =>  array(),
-
-        // One concrete domain site with aliases mapped to directory called "another-site"
-        'example.com'   =>  array(
-            'urls'  =>  array('example.com', 'example.info', 'example.org')
-        ),
-        
-        // One concrete domain site mapped to directory called "another-site"
-        'another-example.com'   =>  array(
-            'path'  =>  'another-example'
-        ),
-
-        // All sub-domains matching wildcard "*.example.com" mapped to directory called "*.example.com"
-        '*.example.com' =>  array(),
-
-        // All sub-domains matching wildcard "*.another-example.com" mapped to directory called "another-site-subs"
-        '*.another-example.com' =>  array(
-            'path'  =>  'another-site-subs'
-        ),
-        
-        // 3 concrete domain sites mapped to directory called "dev-zone"
-        'dev-zone' =>  array(
-            'urls'  =>  array('admin.dev', 'tests.dev', 'tools.dev')
-        ),
-
-    )
-);
-```
-or this
-
-```php
-<?php defined('SYSPATH') OR die('No direct script access.');
-
-return array(
-
-    // This way you`ll have 2 concrete domain sites, 1 wildcard domain site
-    // And 3 per-site directories named like a domain / wildcard
-    // But no custom per-site directory name
-    'sites' =>  array('example.com', '*.example.com', 'another-example.com')
-);
-```
+If on Step 2 you have not been satisfied with default base directory location, then copy `config/sites.php` to `/application/config` and change the 'path' config key.
 
 ### Step 4
-Create subdirectories for your sites (according to your config)
+Create subdirectories for your sites. My personal naming convention is to use domain name of the site (or wildcard like *.example.com). Doing so you may skip the next step if your site has only one domain name / wildcard.
 
 ### Step 5
-Create standart Kohana directories (like config/classes/views) and put site-related files in them
+Create per-site config if you need to map more than one domain/wildcard to the per-site directory.
+
+For example, your per-site directory is `/sites/example.com` (relative to Kohana root folder)
+
+If you'll skip this step, only the domain *example.com* would be mapped to `/sites/example.com` directory.
+
+The config below
+
+```php
+<?php defined('SYSPATH') OR die('No direct script access.');
+
+// This way you`ll have 2 concrete domains, 1 wildcard mapped to per-site directory
+
+return array(
+
+    'example.com',
+    '*.example.com',
+    'another-example.com'
+
+);
+```
+allows you to map *example.com* (with subdomains) and *another-example.com* domains to your per-site directory.
+
+### Step 6
+Create standart Kohana directories (like config/classes/views) and put site-related files in them.
+
+If your site needs custom initialization, you can put it in `init.php` in the per-site directory. This file would be called after initialization of all modules.
 
 Example directory structure:
 
@@ -102,15 +78,18 @@ Example directory structure:
         /config
         /i18n
         /views
+        config.php
+        init.php
     /another-example.com
         /classes
         /config
         /i18n
         /views
+        config.php
 /system
 ```
 
-### Step 6
+### Step 7
 Also you need to create file `/application/classes/Kohana.php` with following content:
 
 ```php
@@ -129,7 +108,7 @@ class Kohana extends Kohana_Core {
 
 because of `Kohana::$_paths` is protected member.
 
-### Step 7
+### Step 8
 Enjoy :)
 And feel free to create issues.
 
