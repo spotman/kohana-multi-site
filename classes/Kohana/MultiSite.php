@@ -61,13 +61,19 @@ abstract class Kohana_MultiSite {
         $site_path = realpath($sites_path.DIRECTORY_SEPARATOR.$site_name);
 
         // Saving per-site dir for later use
-        $this->site_directory($site_path);
+        $this->site_path($site_path);
 
         // Connecting per-site directory to CFS so it becomes top level path (which overrides /application/ path)
         Kohana::prepend_path($site_path);
+    }
 
+    /**
+     * Init site if init.php exists
+     */
+    public function init_site()
+    {
         // Loading custom init.php file for current site if exists
-        $init_file = $site_path.DIRECTORY_SEPARATOR.'init.php';
+        $init_file = $this->site_path().DIRECTORY_SEPARATOR.'init.php';
 
         if ( file_exists($init_file) )
         {
@@ -81,7 +87,7 @@ abstract class Kohana_MultiSite {
      * @param string|null $path
      * @return string
      */
-    public function site_directory($path = NULL)
+    public function site_path($path = NULL)
     {
         if ( $path )
         {
