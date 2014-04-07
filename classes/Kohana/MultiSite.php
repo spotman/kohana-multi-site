@@ -40,6 +40,8 @@ abstract class Kohana_MultiSite {
 
     /**
      * Performs search for per-site directory derived to current request domain and adds it to CFS
+     *
+     * @return $this
      */
     public function process()
     {
@@ -55,7 +57,7 @@ abstract class Kohana_MultiSite {
         if ( ! $site_name )
         {
             $this->missing_domain($domain);
-            return;
+            return $this;
         }
 
         $site_path = realpath($sites_path.DIRECTORY_SEPARATOR.$site_name);
@@ -65,6 +67,8 @@ abstract class Kohana_MultiSite {
 
         // Connecting per-site directory to CFS so it becomes top level path (which overrides /application/ path)
         Kohana::prepend_path($site_path);
+
+        return $this;
     }
 
     /**
