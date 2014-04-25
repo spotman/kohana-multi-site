@@ -111,7 +111,7 @@ abstract class Kohana_MultiSite {
         if ( ! static::$_domain )
         {
             // Attempt to use HTTP_HOST and fallback to SERVER_NAME
-            static::$_domain = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
+            static::$_domain = getenv('http_host') OR getenv('server_name');
 
             if ( ! static::$_domain  )
                 throw new HTTP_Exception_400('Can not determine domain name, possible bad request');
