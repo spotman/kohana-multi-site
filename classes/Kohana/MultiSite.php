@@ -47,7 +47,7 @@ abstract class Kohana_MultiSite {
     public function process()
     {
         // Base script directory
-        $doc_root = Kohana::doc_root();
+        $doc_root = realpath(Kohana::doc_root());
 
         $sites_path = realpath(static::config('path'));
 
