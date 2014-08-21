@@ -36,33 +36,9 @@ Create base directory `sites` near your `application` directory (or in another p
 If on Step 2 you have not been satisfied with default base directory location, then copy `config/sites.php` to `/application/config` and change the 'path' config key.
 
 ### Step 4
-Create subdirectories for your sites. My personal naming convention is to use domain name of the site (or wildcard like *.example.com). Doing so you may skip the next step if your site has only one domain name / wildcard.
+Create subdirectories for your sites. My personal naming convention is to use domain name of the site (or wildcard like *.example.com).
 
 ### Step 5
-Create per-site config if you need to map more than one domain/wildcard to the per-site directory.
-
-For example, your per-site directory is `/sites/example.com` (relative to Kohana root folder)
-
-If you'll skip this step, only the domain *example.com* would be mapped to `/sites/example.com` directory.
-
-The config below
-
-```php
-<?php defined('SYSPATH') OR die('No direct script access.');
-
-// This way you`ll have 2 concrete domains, 1 wildcard mapped to per-site directory
-
-return array(
-
-    'example.com',
-    '*.example.com',
-    'another-example.com'
-
-);
-```
-allows you to map *example.com* (with subdomains) and *another-example.com* domains to your per-site directory.
-
-### Step 6
 Create standart Kohana directories (like config/classes/views) and put site-related files in them.
 
 If your site needs custom initialization, you can put it in `init.php` in the per-site directory. This file would be called after initialization of all modules.
@@ -89,7 +65,7 @@ Example directory structure:
 /system
 ```
 
-### Step 7
+### Step 6
 Also you need to create file `/application/classes/Kohana.php` with following content:
 
 ```php
@@ -120,7 +96,7 @@ class Kohana extends Kohana_Core {
 
 because of `Kohana::$_paths` is protected member.
 
-### Step 8
+### Step 7
 Enjoy :)
 And feel free to create issues.
 
