@@ -47,7 +47,7 @@ abstract class Kohana_MultiSite {
     public function process()
     {
         // Base script directory
-        $doc_root = realpath(Kohana::doc_root());
+        $doc_root = $this->doc_root();
 
         $sites_path = realpath(static::config('path'));
 
@@ -66,6 +66,23 @@ abstract class Kohana_MultiSite {
         Kohana::prepend_path($site_path);
 
         return $this;
+    }
+
+    public function doc_root()
+    {
+        static $path;
+
+        if ( ! $path )
+        {
+            $path = ( php_sapi_name() == 'cli' )
+                ? dirname(realpath($_SERVER['argv'][0]))
+                : realpath(getenv('DOCUMENT_ROOT'));
+        }
+
+        if ( ! $path )
+            throw new Kohana_Exception('Can not detect document root');
+
+        return $path;
     }
 
     /**
