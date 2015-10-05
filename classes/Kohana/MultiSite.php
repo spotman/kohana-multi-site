@@ -97,6 +97,9 @@ abstract class Kohana_MultiSite {
         {
             Kohana::load($init_file);
         }
+
+        // Hack (can not CFS config/init.php)
+        Kohana::$base_url = rtrim(Kohana::$config->load('init')->get('base_url'), '/').'/';
     }
 
     /**
