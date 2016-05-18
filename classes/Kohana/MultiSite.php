@@ -65,6 +65,9 @@ abstract class Kohana_MultiSite {
         // Connecting per-site directory to CFS so it becomes top level path (which overrides /application/ path)
         Kohana::prepend_path($site_path);
 
+        // Repeat init
+        Kohana::reinit();
+
         return $this;
     }
 
@@ -97,9 +100,6 @@ abstract class Kohana_MultiSite {
         {
             Kohana::load($init_file);
         }
-
-        // Hack (can not CFS config/init.php)
-        Kohana::$base_url = rtrim(Kohana::$config->load('init')->get('base_url'), '/').'/';
     }
 
     /**
