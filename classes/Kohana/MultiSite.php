@@ -41,7 +41,7 @@ abstract class Kohana_MultiSite {
     /**
      * Performs search for per-site directory and adds it to CFS
      *
-     * @return $this
+     * @return bool
      * @throws Kohana_Exception
      */
     public function process()
@@ -55,8 +55,13 @@ abstract class Kohana_MultiSite {
             throw new Kohana_Exception('Request must be initiated from per-site directory');
 
         // Getting site name
-        $site_name = dirname(str_replace($sites_path.DIRECTORY_SEPARATOR, '', $doc_root));
+        $relative_path = str_replace($sites_path.DIRECTORY_SEPARATOR, '', $doc_root);
 
+        // No processing needed if inside `core` path
+        if ($relative_path == 'core')
+            return FALSE;
+
+        $site_name = dirname($relative_path);
         $site_path = realpath($sites_path.DIRECTORY_SEPARATOR.$site_name);
 
         // Saving per-site dir for later use
@@ -68,7 +73,7 @@ abstract class Kohana_MultiSite {
         // Repeat init
         Kohana::reinit();
 
-        return $this;
+        return TRUE;
     }
 
     public function doc_root()
