@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
-abstract class Kohana_MultiSite {
-
+abstract class Kohana_MultiSite
+{
     /**
      * @var MultiSite
      */
@@ -73,6 +73,8 @@ abstract class Kohana_MultiSite {
         // Repeat init
         Kohana::reinit();
 
+        $this->init_composer();
+
         return TRUE;
     }
 
@@ -137,7 +139,7 @@ abstract class Kohana_MultiSite {
     /**
      * Returns whole config or concrete group data
      *
-     * @param null $key
+     * @param string|null $key
      * @return Kohana_Config_Group|array
      */
     protected function config($key = NULL)
@@ -150,4 +152,16 @@ abstract class Kohana_MultiSite {
         return $key ? self::$_config->get($key) : self::$_config;
     }
 
+    /**
+     * Initialize Composer dependencies
+     */
+    protected function init_composer()
+    {
+        $vendor_autoload = implode(DIRECTORY_SEPARATOR, [$this->site_path(), 'vendor', 'autoload.php']);
+
+        if ( file_exists($vendor_autoload) )
+        {
+            require_once $vendor_autoload;
+        }
+    }
 }
