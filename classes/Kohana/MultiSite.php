@@ -8,19 +8,14 @@ abstract class Kohana_MultiSite
     protected static $_instance;
 
     /**
-     * @var string
-     */
-    protected static $_domain;
-
-    /**
      * @var string Per-site directory
      */
-    protected static $_site_dir;
+    protected $_site_path;
 
     /**
      * @var Kohana_Config_Group
      */
-    protected static $_config;
+    protected $_config;
 
 
     /**
@@ -39,17 +34,29 @@ abstract class Kohana_MultiSite
     }
 
     /**
-     * Performs search for per-site directory and adds it to CFS
+     * Creates instance of current class
      *
-     * @return bool
-     * @throws Kohana_Exception
+     * @return static
      */
-    public function process()
+    protected static function factory()
+    {
+        return new static;
+    }
+
+    /**
+     * Restrict direct *new* call
+     */
+    protected function __construct()
+    {
+        $this->detect_site();
+    }
+
+    protected function detect_site()
     {
         // Base script directory
         $doc_root = $this->doc_root();
 
-        $sites_path = realpath(static::config('path'));
+        $sites_path = realpath($this->config('path'));
 
         if ( strpos($doc_root, $sites_path) === FALSE )
             throw new Kohana_Exception('Request must be initiated from per-site directory');
@@ -65,17 +72,48 @@ abstract class Kohana_MultiSite
         $site_path = realpath($sites_path.DIRECTORY_SEPARATOR.$site_name);
 
         // Saving per-site dir for later use
-        static::$_site_dir = $site_path;
+        $this->_site_path = $site_path;
 
-        // Connecting per-site directory to CFS so it becomes top level path (which overrides /application/ path)
-        Kohana::prepend_path($site_path);
+        return TRUE;
+    }
+
+    protected function prepend_cfs_path($path)
+    {
+        Kohana::prepend_path($path);
+    }
+
+    /**
+     * Performs search for per-site directory and adds it to CFS
+     *
+     * @return bool
+     * @throws Kohana_Exception
+     */
+    public function process()
+    {
+        if (!$this->is_site_detected())
+            return FALSE;
+
+        $this->init_modules();
+
+        // Connecting per-site directory to CFS so it becomes top level path (it overrides /application/ and all modules)
+        $this->prepend_cfs_path($this->_site_path);
 
         // Repeat init
         Kohana::reinit();
 
-        $this->init_composer();
+        $this->include_composer_deps();
+
+        $this->enable_logs();
 
         return TRUE;
+    }
+
+    protected function enable_logs()
+    {
+        Kohana::$log->attach(
+            new Log_File($this->site_path().DIRECTORY_SEPARATOR.'logs'),
+            Log::INFO
+        );
     }
 
     public function doc_root()
@@ -116,24 +154,60 @@ abstract class Kohana_MultiSite
      */
     public function site_path()
     {
-        return static::$_site_dir;
+        return $this->_site_path;
     }
 
-    /**
-     * Restrict direct *new* call
-     */
-    protected function __construct()
+    public function is_site_detected()
     {
+        return (bool) $this->_site_path;
+    }
+
+    protected function init_modules()
+    {
+        // Getting site-related modules
+        $modules = $this->get_site_modules();
+
+        // Adding modules to CFS (they overrides /application/ and other core modules)
+        foreach (array_reverse($modules) as $module_path)
+        {
+            $this->prepend_cfs_path($module_path);
+        }
+
+        // Execute init.php in each module (if exists)
+        foreach ($modules as $module_path)
+        {
+            $init = $module_path.DIRECTORY_SEPARATOR.'init'.EXT;
+
+            if (file_exists($init))
+            {
+                // Include the module initialization file once
+                require_once $init;
+            }
+        }
     }
 
     /**
-     * Creates instance of current class
+     * Returns array of paths of site modules
      *
-     * @return static
+     * @return array
      */
-    protected static function factory()
+    protected function get_site_modules()
     {
-        return new static;
+        $modules = [];
+        $modules_path = $this->_site_path.DIRECTORY_SEPARATOR.'modules';
+
+        if (file_exists($modules_path))
+        {
+            foreach (new DirectoryIterator($modules_path) as $file)
+            {
+                if ($file->isDot() || !$file->isDir())
+                    continue;
+
+                $modules[ $file->getFilename() ] = $file->getRealPath();
+            }
+        }
+
+        return $modules;
     }
 
     /**
@@ -144,18 +218,19 @@ abstract class Kohana_MultiSite
      */
     protected function config($key = NULL)
     {
-        if ( ! static::$_config )
+        if ( ! $this->_config )
         {
-            static::$_config = Kohana::$config->load('sites');
+            // TODO DI
+            $this->_config = Kohana::$config->load('sites');
         }
 
-        return $key ? self::$_config->get($key) : self::$_config;
+        return $key ? $this->_config->get($key) : $this->_config;
     }
 
     /**
      * Initialize Composer dependencies
      */
-    protected function init_composer()
+    protected function include_composer_deps()
     {
         $vendor_autoload = implode(DIRECTORY_SEPARATOR, [$this->site_path(), 'vendor', 'autoload.php']);
 
