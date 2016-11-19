@@ -157,6 +157,11 @@ abstract class Kohana_MultiSite
         return $this->_site_path;
     }
 
+    public function modules_path()
+    {
+        return $this->_site_path.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
+    }
+
     public function is_site_detected()
     {
         return (bool) $this->_site_path;
@@ -165,16 +170,27 @@ abstract class Kohana_MultiSite
     protected function init_modules()
     {
         // Getting site-related modules
-        $modules = $this->get_site_modules();
+        $site_modules = $this->get_site_modules_config();
+
+        if (!$site_modules)
+            return;
+
+        $loaded_modules = Kohana::modules();
 
         // Adding modules to CFS (they overrides /application/ and other core modules)
-        foreach (array_reverse($modules) as $module_path)
+        foreach (array_reverse($site_modules) as $module_name => $module_path)
         {
+            if (isset($loaded_modules[$module_name]))
+                throw new BetaKiller\Exception('Module :name already loaded from :path', [
+                    ':name' => $module_name,
+                    ':path' => $module_path,
+                ]);
+
             $this->prepend_cfs_path($module_path);
         }
 
         // Execute init.php in each module (if exists)
-        foreach ($modules as $module_path)
+        foreach ($site_modules as $module_path)
         {
             $init = $module_path.DIRECTORY_SEPARATOR.'init'.EXT;
 
@@ -191,8 +207,21 @@ abstract class Kohana_MultiSite
      *
      * @return array
      */
-    protected function get_site_modules()
+    protected function get_site_modules_config()
     {
+        $modules_config = $this->_site_path.DIRECTORY_SEPARATOR.'modules'.EXT;
+
+        if (file_exists($modules_config))
+        {
+            return include_once $modules_config;
+        }
+
+        return NULL;
+    }
+
+    protected function get_existent_site_modules()
+    {
+
         $modules = [];
         $modules_path = $this->_site_path.DIRECTORY_SEPARATOR.'modules';
 
