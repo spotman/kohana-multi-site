@@ -20,11 +20,11 @@ return array(
     // Place it first for correct initialization of per-site classes and configs
     'multi-site'    => MODPATH.'multi-site',    // Multiple apps on top of single engine
 
+    // And here goes your normal list of modules
     'api'           => MODPATH.'api',           // API subsystem
     'auth'          => MODPATH.'auth',          // Basic authentication
     'cache'         => MODPATH.'cache',         // Caching with multiple backends
-    
-    ...
+);
 
 ```
 By doing this you`ll allow Kohana initialize other modules with classes and conigs from per-site directory 
@@ -38,7 +38,7 @@ If on Step 2 you have not been satisfied with default base directory location, t
 ### Step 4
 Create subdirectories for your sites. My personal naming convention is to use domain name of the site (or wildcard like *.example.com).
 
-### Step 5
+### Step 6
 Create standart Kohana directories (like config/classes/views) and put site-related files in them.
 
 If your site needs custom initialization, you can put it in `init.php` in the per-site directory. This file would be called after initialization of all modules.
@@ -65,8 +65,8 @@ Example directory structure:
 /system
 ```
 
-### Step 6
-Also you need to create file `/application/classes/Kohana.php` with following content:
+### Step 7
+You need to create file `/application/classes/Kohana.php` with following content:
 
 ```php
 <?php defined('SYSPATH') OR die('No direct script access.');
@@ -91,12 +91,38 @@ class Kohana extends Kohana_Core {
         return $result;
     }
 
+    public static function reinit()
+    {
+        self::$_init = FALSE;
+
+        // Drop cache because of init file content was cached
+        self::$config->drop_cache();
+
+        $config = Kohana::$config->load('init')->as_array();
+        parent::init($config);
+    }
 }
 ```
 
-because of `Kohana::$_paths` is protected member.
+because of `Kohana::$_paths` is protected member and weird Kohana init logic.
 
-### Step 7
+Also you need to create file `/application/classes/Config.php` with following content:
+
+```php
+<?php defined('SYSPATH') OR die('No direct script access.');
+
+class Config extends Kohana_Config
+{
+    public function drop_cache()
+    {
+        $this->_groups = array();
+    }
+}
+```
+
+because of internal caching inside of `Config`.
+
+### Step 8
 Enjoy :)
 And feel free to create issues.
 
