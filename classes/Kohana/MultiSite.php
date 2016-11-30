@@ -82,6 +82,11 @@ abstract class Kohana_MultiSite
         Kohana::prepend_path($path);
     }
 
+    protected function kohana_reinit()
+    {
+        Kohana::reinit();
+    }
+
     /**
      * Performs search for per-site directory and adds it to CFS
      *
@@ -99,7 +104,7 @@ abstract class Kohana_MultiSite
         $this->prepend_cfs_path($this->_site_path);
 
         // Repeat init
-        Kohana::reinit();
+        $this->kohana_reinit();
 
         $this->include_composer_deps();
 

@@ -38,6 +38,9 @@ If on Step 2 you have not been satisfied with default base directory location, t
 ### Step 4
 Create subdirectories for your sites. My personal naming convention is to use domain name of the site (or wildcard like *.example.com).
 
+### Step 5
+If you use `composer`, you may set site dependencies in `composer.json` file so they would be installed in `vendor` or `modules` directory. Vendor libs are autoloaded automatically, but you need to set up modules list in `modules.php` file (it has default Kohana format).
+
 ### Step 6
 Create standart Kohana directories (like config/classes/views) and put site-related files in them.
 
@@ -48,20 +51,38 @@ Example directory structure:
 ```
 /application
 /modules
+    /first-common-module
+    /second-common-module
 /sites
     /example.com
         /classes
         /config
         /i18n
+        /modules
+            /site-module1
+                /classes
+                /views
+            /site-module2
+                /views
+                init.php
         /views
+        /vendor
+            /vendor1
+                /lib1
+            /vendor2
+                /lib2
         config.php
         init.php
+        modules.php
+        composer.json
+
     /another-example.com
         /classes
         /config
         /i18n
         /views
         config.php
+
 /system
 ```
 
