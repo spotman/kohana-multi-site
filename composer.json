@@ -1,0 +1,24 @@
+{
+	"name" : "spotman/multi-site",
+	"description" : "Allow run multiple sites on single Kohana-based application",
+	"type" : "kohana-module",
+	"keywords" : [
+		"kohana",
+		"multiple",
+		"site"
+	],
+	"license" : "MIT",
+	"homepage" : "https://github.com/spotman/kohana-multi-site",
+	"authors" : [{
+			"name" : "Spotman",
+			"email" : "i.am@spotman.ru",
+			"role" : "author"
+		}
+	],
+	"require" : {
+		"php" : ">=5.5.0"
+	},
+	"support" : {
+		"email" : "i.am@spotman.ru"
+	}
+}
