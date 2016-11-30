@@ -1,5 +1,5 @@
 {
-	"name" : "spotman/multi-site",
+	"name" : "spotman/kohana-multi-site",
 	"description" : "Allow run multiple sites on single Kohana-based application",
 	"type" : "kohana-module",
 	"keywords" : [
