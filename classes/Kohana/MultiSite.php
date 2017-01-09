@@ -98,6 +98,12 @@ abstract class Kohana_MultiSite
         if (!$this->is_site_detected())
             return FALSE;
 
+        // Add site-related log
+        $this->enable_logs();
+
+        // Include Composer dependencies first (they may be used in site-related modules)
+        $this->include_composer_deps();
+
         $this->init_modules();
 
         // Connecting per-site directory to CFS so it becomes top level path (it overrides /application/ and all modules)
@@ -105,10 +111,6 @@ abstract class Kohana_MultiSite
 
         // Repeat init
         $this->kohana_reinit();
-
-        $this->include_composer_deps();
-
-        $this->enable_logs();
 
         return TRUE;
     }
