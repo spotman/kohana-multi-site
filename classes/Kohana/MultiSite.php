@@ -8,7 +8,12 @@ abstract class Kohana_MultiSite
     protected static $_instance;
 
     /**
-     * @var string Per-site directory
+     * @var string Per-site directory name
+     */
+    protected $_site_name;
+
+    /**
+     * @var string Per-site directory full path
      */
     protected $_site_path;
 
@@ -72,6 +77,7 @@ abstract class Kohana_MultiSite
         $site_path = realpath($sites_path.DIRECTORY_SEPARATOR.$site_name);
 
         // Saving per-site dir for later use
+        $this->_site_name = $site_name;
         $this->_site_path = $site_path;
 
         return TRUE;
@@ -155,13 +161,23 @@ abstract class Kohana_MultiSite
     }
 
     /**
-     * Getter for current per-site directory
+     * Getter for current per-site directory full path
      *
      * @return string
      */
     public function site_path()
     {
         return $this->_site_path;
+    }
+
+    /**
+     * Getter for current per-site directory name
+     *
+     * @return string
+     */
+    public function site_name()
+    {
+        return $this->_site_name;
     }
 
     public function modules_path()
