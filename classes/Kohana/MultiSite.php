@@ -63,7 +63,7 @@ abstract class Kohana_MultiSite
         $sitesPath = realpath($this->config('path'));
 
         if (strpos($docRoot, $sitesPath) === false) {
-            throw new Kohana_Exception('Request must be initiated from per-site directory, [:path] given', [
+            Log::instance()->add(Log::NOTICE, 'Request must be initiated from per-site directory, [:path] given', [
                 ':path' => $docRoot
             ]);
         }
@@ -139,7 +139,7 @@ abstract class Kohana_MultiSite
 
         if (!$path) {
             $path = (PHP_SAPI === 'cli')
-                ? realpath(getenv('PWD') ?: dirname($_SERVER['argv'][0]))
+                ? realpath(getenv('PWD') ?: DOCROOT)
                 : realpath(getenv('DOCUMENT_ROOT'));
         }
 
