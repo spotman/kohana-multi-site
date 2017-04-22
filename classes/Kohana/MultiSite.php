@@ -65,9 +65,10 @@ abstract class Kohana_MultiSite
         $sitesPath = realpath($this->config('path'));
 
         if (strpos($docRoot, $sitesPath) === false) {
-            Log::instance()->add(Log::NOTICE, 'Request must be initiated from per-site directory, [:path] given', [
-                ':path' => $docRoot
+            Log::instance()->add(Log::NOTICE, 'Request must be initiated from per-site directory, but [:path] given', [
+                ':path' => $docRoot,
             ]);
+
             return false;
         }
 
@@ -85,6 +86,12 @@ abstract class Kohana_MultiSite
         // Saving per-site dir for later use
         $this->siteName = $siteName;
         $this->sitePath = $sitePath;
+
+        Kohana::$log->add(Log::DEBUG, 'Site detected, name = :name, path = :path, root = :root', [
+            ':name' => $siteName,
+            ':path' => $sitePath,
+            ':root' => $docRoot,
+        ]);
 
         return true;
     }
@@ -130,6 +137,16 @@ abstract class Kohana_MultiSite
 
     protected function enableLogs()
     {
+        $logsDir = $this->getWorkingPath().DIRECTORY_SEPARATOR.'logs';
+
+        if (!file_exists($logsDir) || !is_writable($logsDir)) {
+            Kohana::$log->add(Log::NOTICE, 'Site logs directory is not writable :dir', [
+                ':dir' => $logsDir,
+            ]);
+
+            return;
+        }
+
         Kohana::$log->attach(
             new Log_File($this->getWorkingPath().DIRECTORY_SEPARATOR.'logs'),
             Log::INFO
@@ -258,7 +275,7 @@ abstract class Kohana_MultiSite
 
     protected function getExistentSiteModules()
     {
-        $modules      = [];
+        $modules     = [];
         $modulesPath = $this->sitePath.DIRECTORY_SEPARATOR.'modules';
 
         if (file_exists($modulesPath)) {
