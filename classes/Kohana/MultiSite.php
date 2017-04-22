@@ -64,8 +64,12 @@ abstract class Kohana_MultiSite
 
         $sitesPath = realpath($this->config('path'));
 
+        Kohana::$log->add(Log::DEBUG, 'Sites path is :path', [
+            ':path' => $sitesPath,
+        ]);
+
         if (strpos($docRoot, $sitesPath) === false) {
-            Log::instance()->add(Log::NOTICE, 'Request must be initiated from per-site directory, but [:path] given', [
+            Kohana::$log->add(Log::NOTICE, 'Request must be initiated from per-site directory, but [:path] given', [
                 ':path' => $docRoot,
             ]);
 
@@ -75,8 +79,8 @@ abstract class Kohana_MultiSite
         // Getting site name
         $relativePath = str_replace($sitesPath.DIRECTORY_SEPARATOR, '', $docRoot);
 
-        // No processing needed if inside `core` path
-        if ($relativePath === 'core') {
+        // No processing needed if inside BetaKiller `core` path
+        if (in_array($relativePath, ['core', 'betakiller'], true)) {
             return false;
         }
 
