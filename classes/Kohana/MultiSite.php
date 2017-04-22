@@ -7,20 +7,22 @@ abstract class Kohana_MultiSite
      */
     protected static $_instance;
 
+    protected $siteDetected = false;
+
     /**
      * @var string Per-site directory name
      */
-    protected $_site_name;
+    protected $siteName;
 
     /**
      * @var string Per-site directory full path
      */
-    protected $_site_path;
+    protected $sitePath;
 
     /**
      * @var Kohana_Config_Group
      */
-    protected $_config;
+    protected $config;
 
 
     /**
@@ -52,13 +54,13 @@ abstract class Kohana_MultiSite
      */
     protected function __construct()
     {
-        $this->detect_site();
+        $this->siteDetected = $this->detectSite();
     }
 
-    protected function detect_site()
+    protected function detectSite()
     {
         // Base script directory
-        $docRoot = $this->doc_root();
+        $docRoot = $this->docRoot();
 
         $sitesPath = realpath($this->config('path'));
 
@@ -81,18 +83,18 @@ abstract class Kohana_MultiSite
         $sitePath = realpath($sitesPath.DIRECTORY_SEPARATOR.$siteName);
 
         // Saving per-site dir for later use
-        $this->_site_name = $siteName;
-        $this->_site_path = $sitePath;
+        $this->siteName = $siteName;
+        $this->sitePath = $sitePath;
 
         return true;
     }
 
-    protected function prepend_cfs_path($path)
+    protected function prependCfsPath($path)
     {
         Kohana::prepend_path($path);
     }
 
-    protected function kohana_reinit()
+    protected function kohanaReInit()
     {
         Kohana::reinit();
     }
@@ -105,28 +107,28 @@ abstract class Kohana_MultiSite
      */
     public function process()
     {
-        if (!$this->is_site_detected()) {
+        if (!$this->isSiteDetected()) {
             return false;
         }
 
         // Add site-related log
-        $this->enable_logs();
+        $this->enableLogs();
 
         // Include Composer dependencies first (they may be used in site-related modules)
-        $this->include_composer_deps();
+        $this->includeComposerDependencies();
 
-        $this->init_modules();
+        $this->initModules();
 
         // Connecting per-site directory to CFS so it becomes top level path (it overrides /application/ and all modules)
-        $this->prepend_cfs_path($this->_site_path);
+        $this->prependCfsPath($this->sitePath);
 
         // Repeat init
-        $this->kohana_reinit();
+        $this->kohanaReInit();
 
         return true;
     }
 
-    protected function enable_logs()
+    protected function enableLogs()
     {
         Kohana::$log->attach(
             new Log_File($this->getWorkingPath().DIRECTORY_SEPARATOR.'logs'),
@@ -134,7 +136,7 @@ abstract class Kohana_MultiSite
         );
     }
 
-    public function doc_root()
+    public function docRoot()
     {
         static $path;
 
@@ -154,13 +156,13 @@ abstract class Kohana_MultiSite
     /**
      * Init site if init.php exists
      */
-    public function init_site()
+    public function initSite()
     {
         // Loading custom init.php file for current site if exists
-        $init_file = $this->site_path().DIRECTORY_SEPARATOR.'init.php';
+        $initFile = $this->getSitePath().DIRECTORY_SEPARATOR.'init.php';
 
-        if (file_exists($init_file)) {
-            Kohana::load($init_file);
+        if (file_exists($initFile)) {
+            Kohana::load($initFile);
         }
     }
 
@@ -169,14 +171,14 @@ abstract class Kohana_MultiSite
      *
      * @return string
      */
-    public function site_path()
+    public function getSitePath()
     {
-        return $this->_site_path;
+        return $this->sitePath;
     }
 
     public function getWorkingPath()
     {
-        return $this->site_path() ?: APPPATH;
+        return $this->getSitePath() ?: APPPATH;
     }
 
     /**
@@ -184,52 +186,52 @@ abstract class Kohana_MultiSite
      *
      * @return string
      */
-    public function site_name()
+    public function getSiteName()
     {
-        return $this->_site_name;
+        return $this->siteName;
     }
 
     public function getWorkingName()
     {
-        return $this->site_name() ?: 'core';
+        return $this->getSiteName() ?: 'core';
     }
 
-    public function modules_path()
+    public function siteModulesPath()
     {
-        return $this->_site_path.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
+        return $this->sitePath.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
     }
 
-    public function is_site_detected()
+    public function isSiteDetected()
     {
-        return (bool)$this->_site_path;
+        return $this->siteDetected;
     }
 
-    protected function init_modules()
+    protected function initModules()
     {
         // Getting site-related modules
-        $site_modules = $this->get_site_modules_config();
+        $siteModules = $this->getSiteModulesConfig();
 
-        if (!$site_modules) {
+        if (!$siteModules) {
             return;
         }
 
-        $loaded_modules = Kohana::modules();
+        $loadedModules = Kohana::modules();
 
         // Adding modules to CFS (they overrides /application/ and other core modules)
-        foreach (array_reverse($site_modules) as $module_name => $module_path) {
-            if (isset($loaded_modules[$module_name])) {
+        foreach (array_reverse($siteModules) as $moduleName => $modulePath) {
+            if (isset($loadedModules[$moduleName])) {
                 throw new \BetaKiller\Exception('Module :name already loaded from :path', [
-                    ':name' => $module_name,
-                    ':path' => $module_path,
+                    ':name' => $moduleName,
+                    ':path' => $modulePath,
                 ]);
             }
 
-            $this->prepend_cfs_path($module_path);
+            $this->prependCfsPath($modulePath);
         }
 
         // Execute init.php in each module (if exists)
-        foreach ($site_modules as $module_path) {
-            $init = $module_path.DIRECTORY_SEPARATOR.'init'.EXT;
+        foreach ($siteModules as $modulePath) {
+            $init = $modulePath.DIRECTORY_SEPARATOR.'init'.EXT;
 
             if (file_exists($init)) {
                 // Include the module initialization file once
@@ -243,24 +245,24 @@ abstract class Kohana_MultiSite
      *
      * @return array
      */
-    protected function get_site_modules_config()
+    protected function getSiteModulesConfig()
     {
-        $modules_config = $this->_site_path.DIRECTORY_SEPARATOR.'modules'.EXT;
+        $modulesConfig = $this->sitePath.DIRECTORY_SEPARATOR.'modules'.EXT;
 
-        if (file_exists($modules_config)) {
-            return include_once $modules_config;
+        if (file_exists($modulesConfig)) {
+            return include_once $modulesConfig;
         }
 
         return null;
     }
 
-    protected function get_existent_site_modules()
+    protected function getExistentSiteModules()
     {
         $modules      = [];
-        $modules_path = $this->_site_path.DIRECTORY_SEPARATOR.'modules';
+        $modulesPath = $this->sitePath.DIRECTORY_SEPARATOR.'modules';
 
-        if (file_exists($modules_path)) {
-            foreach (new DirectoryIterator($modules_path) as $file) {
+        if (file_exists($modulesPath)) {
+            foreach (new DirectoryIterator($modulesPath) as $file) {
                 if ($file->isDot() || !$file->isDir()) {
                     continue;
                 }
@@ -281,23 +283,23 @@ abstract class Kohana_MultiSite
      */
     protected function config($key = null)
     {
-        if (!$this->_config) {
+        if (!$this->config) {
             // TODO DI
-            $this->_config = Kohana::$config->load('sites');
+            $this->config = Kohana::$config->load('sites');
         }
 
-        return $key ? $this->_config->get($key) : $this->_config;
+        return $key ? $this->config->get($key) : $this->config;
     }
 
     /**
      * Initialize Composer dependencies
      */
-    protected function include_composer_deps()
+    protected function includeComposerDependencies()
     {
-        $vendor_autoload = implode(DIRECTORY_SEPARATOR, [$this->site_path(), 'vendor', 'autoload.php']);
+        $vendorAutoload = implode(DIRECTORY_SEPARATOR, [$this->getSitePath(), 'vendor', 'autoload.php']);
 
-        if (file_exists($vendor_autoload)) {
-            require_once $vendor_autoload;
+        if (file_exists($vendorAutoload)) {
+            require_once $vendorAutoload;
         }
     }
 }

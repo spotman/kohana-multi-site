@@ -106,7 +106,7 @@ class Kohana extends Kohana_Core {
 
         if ( $modules !== NULL )
         {
-            MultiSite::instance()->init_site();
+            MultiSite::instance()->initSite();
         }
 
         return $result;
