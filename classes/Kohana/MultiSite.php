@@ -66,6 +66,7 @@ abstract class Kohana_MultiSite
             Log::instance()->add(Log::NOTICE, 'Request must be initiated from per-site directory, [:path] given', [
                 ':path' => $docRoot
             ]);
+            return false;
         }
 
         // Getting site name
@@ -128,7 +129,7 @@ abstract class Kohana_MultiSite
     protected function enable_logs()
     {
         Kohana::$log->attach(
-            new Log_File($this->site_path().DIRECTORY_SEPARATOR.'logs'),
+            new Log_File($this->getWorkingPath().DIRECTORY_SEPARATOR.'logs'),
             Log::INFO
         );
     }
@@ -173,6 +174,11 @@ abstract class Kohana_MultiSite
         return $this->_site_path;
     }
 
+    public function getWorkingPath()
+    {
+        return $this->site_path() ?: APPPATH;
+    }
+
     /**
      * Getter for current per-site directory name
      *
@@ -181,6 +187,11 @@ abstract class Kohana_MultiSite
     public function site_name()
     {
         return $this->_site_name;
+    }
+
+    public function getWorkingName()
+    {
+        return $this->site_name() ?: 'core';
     }
 
     public function modules_path()
