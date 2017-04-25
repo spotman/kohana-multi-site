@@ -84,7 +84,7 @@ abstract class Kohana_MultiSite
             return false;
         }
 
-        $siteName = dirname($relativePath);
+        $siteName = explode(DIRECTORY_SEPARATOR, $relativePath)[0];
         $sitePath = realpath($sitesPath.DIRECTORY_SEPARATOR.$siteName);
 
         // Saving per-site dir for later use
