@@ -64,16 +64,14 @@ abstract class Kohana_MultiSite
 
         $sitesPath = realpath($this->config('path'));
 
-        Kohana::$log->add(Log::DEBUG, 'Sites path is :path', [
-            ':path' => $sitesPath,
-        ]);
+//        Kohana::$log->add(Log::DEBUG, 'Sites path is :path', [
+//            ':path' => $sitesPath,
+//        ]);
 
         if (strpos($docRoot, $sitesPath) === false) {
-            Kohana::$log->add(Log::NOTICE, 'Request must be initiated from per-site directory, but [:path] given', [
+            throw new \Kohana_Exception('Request must be initiated from per-site directory, but [:path] given', [
                 ':path' => $docRoot,
             ]);
-
-            return false;
         }
 
         // Getting site name
@@ -91,11 +89,11 @@ abstract class Kohana_MultiSite
         $this->siteName = $siteName;
         $this->sitePath = $sitePath;
 
-        Kohana::$log->add(Log::DEBUG, 'Site detected, name = :name, path = :path, root = :root', [
-            ':name' => $siteName,
-            ':path' => $sitePath,
-            ':root' => $docRoot,
-        ]);
+//        Kohana::$log->add(Log::DEBUG, 'Site detected, name = :name, path = :path, root = :root', [
+//            ':name' => $siteName,
+//            ':path' => $sitePath,
+//            ':root' => $docRoot,
+//        ]);
 
         return true;
     }
@@ -143,16 +141,16 @@ abstract class Kohana_MultiSite
     {
         $logsDir = $this->getWorkingPath().DIRECTORY_SEPARATOR.'logs';
 
-        if (!file_exists($logsDir) || !is_writable($logsDir)) {
-            Kohana::$log->add(Log::NOTICE, 'Site logs directory is not writable :dir', [
-                ':dir' => $logsDir,
-            ]);
-
-            return;
-        }
+//        if (!file_exists($logsDir) || !is_writable($logsDir)) {
+//            Kohana::$log->add(Log::NOTICE, 'Site logs directory is not writable :dir', [
+//                ':dir' => $logsDir,
+//            ]);
+//
+//            return;
+//        }
 
         Kohana::$log->attach(
-            new Log_File($this->getWorkingPath().DIRECTORY_SEPARATOR.'logs'),
+            new Log_File($logsDir),
             Log::INFO
         );
     }
