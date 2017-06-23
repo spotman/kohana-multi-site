@@ -161,7 +161,7 @@ abstract class Kohana_MultiSite
 
         if (!$path) {
             $path = (PHP_SAPI === 'cli')
-                ? realpath(getenv('PWD') ?: DOCROOT)
+                ? realpath(getcwd() ?: DOCROOT)
                 : realpath(getenv('DOCUMENT_ROOT'));
         }
 
