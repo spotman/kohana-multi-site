@@ -1,8 +1,5 @@
 <?php
 
-use BetaKiller\Error\PhpExceptionStorageInterface;
-use BetaKiller\Error\PhpExceptionStorage;
-
 return [
 
     'definitions' => [
