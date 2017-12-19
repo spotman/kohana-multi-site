@@ -120,6 +120,12 @@ abstract class Kohana_MultiSite
             return false;
         }
 
+        // Connecting per-site directory to CFS so it becomes top level path (it overrides /application/ and all modules)
+        $this->prependCfsPath($this->sitePath);
+
+        // Repeat init
+        $this->kohanaReInit();
+
         // Add site-related log
         $this->enableLogs();
 
@@ -128,26 +134,12 @@ abstract class Kohana_MultiSite
 
         $this->initModules();
 
-        // Connecting per-site directory to CFS so it becomes top level path (it overrides /application/ and all modules)
-        $this->prependCfsPath($this->sitePath);
-
-        // Repeat init
-        $this->kohanaReInit();
-
         return true;
     }
 
     protected function enableLogs()
     {
         $logsDir = $this->getWorkingPath().DIRECTORY_SEPARATOR.'logs';
-
-//        if (!file_exists($logsDir) || !is_writable($logsDir)) {
-//            Kohana::$log->add(Log::NOTICE, 'Site logs directory is not writable :dir', [
-//                ':dir' => $logsDir,
-//            ]);
-//
-//            return;
-//        }
 
         Kohana::$log->attach(
             new Log_File($logsDir),
@@ -269,7 +261,8 @@ abstract class Kohana_MultiSite
         $modulesConfig = $this->sitePath.DIRECTORY_SEPARATOR.'modules'.EXT;
 
         if (file_exists($modulesConfig)) {
-            return include_once $modulesConfig;
+            /** @noinspection PhpIncludeInspection */
+            return include $modulesConfig;
         }
 
         return null;
