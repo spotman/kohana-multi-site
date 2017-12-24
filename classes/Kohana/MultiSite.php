@@ -120,11 +120,8 @@ abstract class Kohana_MultiSite
             return false;
         }
 
-        // Connecting per-site directory to CFS so it becomes top level path (it overrides /application/ and all modules)
-        $this->prependCfsPath($this->sitePath);
-
-        // Repeat init
-        $this->kohanaReInit();
+        // Getting site-related modules
+        $siteModules = $this->getSiteModulesConfig();
 
         // Add site-related log
         $this->enableLogs();
@@ -132,7 +129,22 @@ abstract class Kohana_MultiSite
         // Include Composer dependencies first (they may be used in site-related modules)
         $this->includeComposerDependencies();
 
-        $this->initModules();
+        // Add site-related modules to CFS first so it would be placed on top of core but under site app
+        if ($siteModules) {
+            $this->addModulesToCFS($siteModules);
+        }
+
+        // Connecting per-site directory to CFS so it becomes top level path (it overrides /application/ and all modules)
+        // Placing it after initializing modules so it would be placed first (prepended)
+        $this->prependCfsPath($this->sitePath);
+
+        // Repeat init after adding site-related config directory via CFS
+        $this->kohanaReInit();
+
+        // Init site-related modules if they exist
+        if ($siteModules) {
+            $this->initModules($siteModules);
+        }
 
         return true;
     }
@@ -217,15 +229,8 @@ abstract class Kohana_MultiSite
         return $this->siteDetected;
     }
 
-    protected function initModules()
+    protected function addModulesToCFS(array $siteModules)
     {
-        // Getting site-related modules
-        $siteModules = $this->getSiteModulesConfig();
-
-        if (!$siteModules) {
-            return;
-        }
-
         $loadedModules = Kohana::modules();
 
         // Adding modules to CFS (they overrides /application/ and other core modules)
@@ -239,7 +244,10 @@ abstract class Kohana_MultiSite
 
             $this->prependCfsPath($modulePath);
         }
+    }
 
+    protected function initModules(array $siteModules)
+    {
         // Execute init.php in each module (if exists)
         foreach ($siteModules as $modulePath) {
             $init = $modulePath.DIRECTORY_SEPARATOR.'init'.EXT;
