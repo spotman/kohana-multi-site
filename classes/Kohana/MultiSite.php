@@ -151,12 +151,13 @@ abstract class Kohana_MultiSite
 
     protected function enableLogs()
     {
+        if (!$this->config('logs')) {
+            return;
+        }
+
         $logsDir = $this->getWorkingPath().DIRECTORY_SEPARATOR.'logs';
 
-        Kohana::$log->attach(
-            new Log_File($logsDir),
-            Log::INFO
-        );
+        Kohana::$log->attach(new Log_File($logsDir), Log::INFO);
     }
 
     public function docRoot()
