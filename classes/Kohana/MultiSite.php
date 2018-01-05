@@ -146,6 +146,9 @@ abstract class Kohana_MultiSite
             $this->initModules($siteModules);
         }
 
+        // Final custom initialization
+        $this->initSite();
+
         return true;
     }
 
