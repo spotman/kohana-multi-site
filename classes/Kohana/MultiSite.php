@@ -100,7 +100,9 @@ abstract class Kohana_MultiSite
 
     /**
      * @param string $path
+     *
      * @return void
+     * @throws \ReflectionException
      */
     protected function prependCfsPath($path)
     {
@@ -290,11 +292,11 @@ abstract class Kohana_MultiSite
     /**
      * Returns array of paths of site modules
      *
-     * @return array
+     * @return string[]
      */
     protected function getSiteModulesConfig()
     {
-        $modulesConfig = $this->sitePath.DIRECTORY_SEPARATOR.'modules'.EXT;
+        $modulesConfig = implode(DIRECTORY_SEPARATOR, [$this->sitePath, 'config', 'modules'.EXT]);
 
         if (file_exists($modulesConfig)) {
             /** @noinspection PhpIncludeInspection */
