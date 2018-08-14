@@ -2,6 +2,8 @@
 
 return array(
 
+    // Init MultiSite automatically in init.php
+    'init'  =>  true,
     'path'  =>  APPPATH.'..'.DIRECTORY_SEPARATOR.'sites',
     'logs'  =>  true,
 

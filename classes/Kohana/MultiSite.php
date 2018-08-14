@@ -7,6 +7,8 @@ abstract class Kohana_MultiSite
      */
     protected static $_instance;
 
+    protected $initialized = false;
+
     protected $siteDetected = false;
 
     /**
@@ -106,7 +108,7 @@ abstract class Kohana_MultiSite
      */
     protected function prependCfsPath($path)
     {
-        $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $path = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
 
         $reflection = new \ReflectionProperty(Kohana::class, '_paths');
         $reflection->setAccessible(true);
@@ -134,16 +136,27 @@ abstract class Kohana_MultiSite
         Kohana::$base_url = rtrim($config['base_url'], '/').'/';
     }
 
+    public function initIfAllowed()
+    {
+        if ($this->config('init')) {
+            $this->init();
+        }
+    }
+
     /**
      * Performs search for per-site directory and adds it to CFS
      *
      * @return bool
      * @throws Kohana_Exception
      */
-    public function process()
+    public function init()
     {
         if (!$this->isSiteDetected()) {
             return false;
+        }
+
+        if ($this->initialized) {
+            throw new Kohana_Exception('MultiSite was already initialized');
         }
 
         // Getting site-related modules
@@ -175,7 +188,14 @@ abstract class Kohana_MultiSite
         // Final custom initialization
         $this->initSite();
 
+        $this->initialized = true;
+
         return true;
+    }
+
+    public function isInitialized(): bool
+    {
+        return $this->initialized;
     }
 
     protected function enableLogs()
@@ -209,7 +229,7 @@ abstract class Kohana_MultiSite
     /**
      * Init site if init.php exists
      */
-    public function initSite()
+    protected function initSite()
     {
         // Loading custom init.php file for current site if exists
         $initFile = $this->getSitePath().DIRECTORY_SEPARATOR.'init.php';
