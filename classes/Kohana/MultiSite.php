@@ -129,11 +129,8 @@ abstract class Kohana_MultiSite
         // Inject fake config reader for resetting config groups cache (add last so no performance impact produced)
         Kohana::$config->attach(new FakeConfigReader(), false);
 
-        // Reload site-related config
-        $config = Kohana::$config->load('init')->as_array();
-
-        // Update the base URL for proper URL creation
-        Kohana::$base_url = rtrim($config['base_url'], '/').'/';
+        // Reload site-related config (cache directory, profiling, errors, etc)
+        Kohana::$config->load('init')->as_array();
     }
 
     public function initIfAllowed()
